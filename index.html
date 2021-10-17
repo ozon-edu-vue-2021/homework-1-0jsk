@@ -84,7 +84,7 @@
             },
             computed: {
                 result() {
-                    return this.counter + this.step;
+                    return this.mode === "sum" ? this.counter + this.step : this.counter * this.step;
                 },
                 counterNumber() {
                     return this.mode === "sum" ? 1 : 2;
