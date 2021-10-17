@@ -38,3 +38,12 @@ p {
 .math {
     margin-block-start: 1em;
 }
+
+.mode {
+    cursor: pointer;
+}
+
+.mode:hover {
+    /* #005bff to rgba */
+    background-color: rgba(0, 62, 173, .2);
+}

@@ -14,17 +14,29 @@
     <section class="app vue-app">
         <h1>VUE</h1>
         <h2>How much will?</h2>
-        <p>{{counter}} + {{step}}</p>
-        <p><strong>Result: {{sum}}</strong></p>
+        <p>
+            <span>{{ counter }}</span>
+            <span @click="inverseMode" class="mode">{{ symbol }}</span>
+            <span>{{ step }}</span>
+        </p>
+        <p><strong>Result: {{ result }}</strong></p>
         <div class="math">
             Counter:
-            <button class="button minus" v-on:click="decrementCounterHandler">-1</button>
-            <button class="button plus" v-on:click="incrementCounterHandler">+1</button>
+            <button class="button minus" @click="changeHandler(mode, 'counter', counterNumber * -1)">
+                {{ symbol }}(-{{ counterNumber }})
+            </button>
+            <button class="button plus" @click="changeHandler(mode, 'counter', counterNumber)">
+                {{ symbol }}{{ counterNumber }}
+            </button>
         </div>
         <div class="math">
             Step:
-            <button class="button minus">-2</button>
-            <button class="button plus">+2</button>
+            <button class="button minus" @click="changeHandler(mode, 'step', stepNumber * -1)">
+                {{ symbol }}(-{{ stepNumber }})
+            </button>
+            <button class="button plus" @click="changeHandler(mode, 'step', stepNumber)">
+                {{ symbol }}{{ stepNumber }}
+            </button>
         </div>
     </section>
     <hr>
@@ -49,15 +61,41 @@
             el: '.vue-app',
             data: {
                 counter: 1,
-                step: 2
+                step: 2,
+                /**
+                 * @type {('sum' | 'product')} Сумма или произведение
+                 */
+                mode: "product",
+                modeToSymbol: {
+                    sum: "+",
+                    product: "×",
+                },
             },
             methods: {
-                incrementCounterHandler() {},
-                decrementCounterHandler() {}
-                //...
+                sum(number, key) { this[key] += number; },
+                product(number, key) { this[key] *= number; },
+                changeHandler(mode, key, number) { return this[mode](number, key); },
+
+                inverseMode() { this.mode = this.mode === "sum" ? "product" : "sum" }
             },
             computed: {
-                sum() {}
+                result() {
+                    return this.counter + this.step;
+                },
+                counterNumber() {
+                    return this.mode === "sum" ? 1 : 2;
+                },
+                stepNumber() {
+                    return this.mode === "sum" ? 2 : 4;
+                },
+                symbol() {
+                    return this.modeToSymbol[this.mode];
+                }
+            },
+            watch: {
+                step(v) {
+                    console.log(v);
+                }
             }
         })
     </script>
