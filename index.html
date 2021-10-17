@@ -69,7 +69,7 @@
                 /**
                  * @type {('sum' | 'product')} Сумма или произведение
                  */
-                mode: "product",
+                mode: "sum",
                 modeToSymbol: {
                     sum: "+",
                     product: "×",
@@ -96,11 +96,6 @@
                     return this.modeToSymbol[this.mode];
                 }
             },
-            watch: {
-                step(v) {
-                    console.log(v);
-                }
-            }
         })
     </script>
     <script>
