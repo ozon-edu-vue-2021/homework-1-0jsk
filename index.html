@@ -14,31 +14,47 @@
     <section class="app vue-app">
         <h1>VUE</h1>
         <h2>How much will?</h2>
-        <p>{{counter}} + {{step}}</p>
-        <p><strong>Result: {{sum}}</strong></p>
+        <p>
+            <span>{{ counter }}</span>
+            <span @click="inverseMode" class="mode">{{ symbol }}</span>
+            <span>{{ step }}</span>
+        </p>
+        <p><strong>Result: {{ result }}</strong></p>
         <div class="math">
             Counter:
-            <button class="button minus" v-on:click="decrementCounterHandler">-1</button>
-            <button class="button plus" v-on:click="incrementCounterHandler">+1</button>
+            <button class="button minus" @click="changeHandler(mode, 'counter', counterNumber * -1)">
+                {{ symbol }}(-{{ counterNumber }})
+            </button>
+            <button class="button plus" @click="changeHandler(mode, 'counter', counterNumber)">
+                {{ symbol }}{{ counterNumber }}
+            </button>
         </div>
         <div class="math">
             Step:
-            <button class="button minus">-2</button>
-            <button class="button plus">+2</button>
+            <button class="button minus" @click="changeHandler(mode, 'step', stepNumber * -1)">
+                {{ symbol }}(-{{ stepNumber }})
+            </button>
+            <button class="button plus" @click="changeHandler(mode, 'step', stepNumber)">
+                {{ symbol }}{{ stepNumber }}
+            </button>
         </div>
     </section>
     <hr>
     <section class="app js-app">
         <h1>JS</h1>
         <h2>How much will!</h2>
-        <p><span class="counter"></span> + <span class="step"></span></p>
+        <p>
+            <span class="counter"></span>
+            <span class="mode">+</span>
+            <span class="step"></span>
+        </p>
         <p><strong>Result: <span class="sum"></span></strong></p>
-        <div class="math">
+        <div class="counter-block math">
             Counter:
             <button class="button minus">-1</button>
             <button class="button plus">+1</button>
         </div>
-        <div class="math">
+        <div class="step-block math">
             Step:
             <button class="button minus">-2</button>
             <button class="button plus">+2</button>
@@ -49,58 +65,131 @@
             el: '.vue-app',
             data: {
                 counter: 1,
-                step: 2
+                step: 2,
+                /**
+                 * @type {('sum' | 'product')} Сумма или произведение
+                 */
+                mode: "sum",
+                modeToSymbol: {
+                    sum: "+",
+                    product: "×",
+                },
             },
             methods: {
-                incrementCounterHandler() {},
-                decrementCounterHandler() {}
-                //...
+                sum(number, key) { this[key] += number; },
+                product(number, key) { this[key] *= number; },
+                changeHandler(mode, key, number) { return this[mode](number, key); },
+
+                inverseMode() { this.mode = this.mode === "sum" ? "product" : "sum" }
             },
             computed: {
-                sum() {}
-            }
+                result() {
+                    return this.mode === "sum" ? this.counter + this.step : this.counter * this.step;
+                },
+                counterNumber() {
+                    return this.mode === "sum" ? 1 : 2;
+                },
+                stepNumber() {
+                    return this.mode === "sum" ? 2 : 4;
+                },
+                symbol() {
+                    return this.modeToSymbol[this.mode];
+                }
+            },
         })
     </script>
     <script>
         const counterEl = document.querySelector('.js-app .counter');
-        const buttonElMinus = document.querySelector('.js-app .minus');
-        const buttonElPlus = document.querySelector('.js-app .plus');
-        const sumEl = document.querySelector('.js-app .sum');
+        const btnCounterMinusEl = document.querySelector('.counter-block .minus');
+        const btnCounterPlusEl = document.querySelector('.counter-block .plus');
+        const btnStepMinusEl = document.querySelector('.step-block .minus');
+        const btnStepPlusEl = document.querySelector('.step-block .plus');
+        const symbolEl = document.querySelector('.js-app .mode');
+        const resultEl = document.querySelector('.js-app .sum');
         const stepEl = document.querySelector('.js-app .step');
+
+        const modeToSymbol = {
+            sum: "+",
+            product: "×",
+        }
 
         const data = {
             counter: 1,
-            step: 2
+            step: 2,
+            mode: "sum",
         };
 
-        const incrementCounterHandler = function () {};
-        const decrementCounterHandler = function () {};
-        //...
-        const getSum = function () {};
+        const methods = {
+            sum: (number, key) => () => data[key] += number,
+            product: (number, key) => () => data[key] *= number,
+            changeHandler(mode, key, number) { return this[mode](number, key) },
 
-        const queue = [getSum];
+            inverseMode() { data.mode = data.mode === "sum" ? "product" : "sum" }
+        }
+
+        const computed = {
+            get result() {
+                return data.mode === "sum" ? data.counter + data.step : data.counter * data.step;
+            },
+            get sum() {
+                return data.counter + data.step;
+            },
+            get counterNumber() {
+                return data.mode === "sum" ? 1 : 2;
+            },
+            get stepNumber() {
+                return data.mode === "sum" ? 2 : 4;
+            },
+            get symbol() {
+                return modeToSymbol[data.mode];
+            }
+        };
+
+        const renderCounter = () => counterEl.textContent = data.counter;
+        const renderStep = () => stepEl.textContent = data.step;
+        const renderResult = () => resultEl.textContent = computed.result;
+        const renderSymbol = () => symbolEl.textContent = computed.symbol;
+
+        const renderBtnCounterMinus = () => btnCounterMinusEl.textContent = `${computed.symbol}(-${computed.counterNumber})`;
+        const renderBtnCounterPlus = () => btnCounterPlusEl.textContent = `${computed.symbol}${computed.counterNumber}`;
+        const renderBtnStepMinus = () => btnStepMinusEl.textContent = `${computed.symbol}(-${computed.stepNumber})`;
+        const renderBtnStepPlus = () => btnStepPlusEl.textContent = `${computed.symbol}${computed.stepNumber}`;
+
+        const queue = [
+            renderCounter,
+            renderStep,
+            renderSymbol,
+            renderResult,
+            renderBtnCounterMinus,
+            renderBtnCounterPlus,
+            renderBtnStepMinus,
+            renderBtnStepPlus
+        ];
+        const render = () => queue.forEach(fn => fn());
 
         Object.keys(data).forEach(key => {
             let value = data[key]; // data.counter, data.counter1, data.counter2
             Object.defineProperty(data, key, {
                 get: function () {
-                    console.log('get');
-                    // queue.push();
+                    console.log({value, key, data});
                     return value;
                 },
                 set: function (newValue) {
-                    console.log('set');
                     value = newValue;
-                    queue.forEach(fn => fn());
+                    render();
                 }
             });
         });
 
-        counterEl.textContent = data.counter;
-        stepEl.textContent = data.step;
-        getSum();
-        buttonElMinus.addEventListener('click', decrementCounterHandler);
-        buttonElPlus.addEventListener('click', incrementCounterHandler);
+        btnCounterMinusEl.addEventListener('click', methods.changeHandler(data.mode, 'counter', computed.counterNumber * -1));
+        btnCounterPlusEl.addEventListener('click', methods.changeHandler(data.mode, 'counter', computed.counterNumber));
+
+        btnStepMinusEl.addEventListener('click', methods.changeHandler(data.mode, 'step', computed.stepNumber * -1));
+        btnStepPlusEl.addEventListener('click', methods.changeHandler(data.mode, 'step', computed.stepNumber));
+
+        symbolEl.addEventListener('click', methods.inverseMode);
+
+        render();
     </script>
 </body>
 
